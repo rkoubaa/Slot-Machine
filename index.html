@@ -323,7 +323,10 @@
             <button class="spin-button" onclick="spin()" id="spinButton">
                 🎰 DREHEN (Leertaste)
             </button>
- 
+ <button class="spin-button" onclick="cashOut()" id="cashOutButton" style="background: linear-gradient(45deg, #00c9ff, #92fe9d);">
+    💸 Auszahlen & Beenden
+</button>
+
             <div class="instructions">
                 LEERTASTE = Drehen | Einsatz: 10 Drachencoins
             </div>
@@ -431,7 +434,17 @@
                 checkPassword();
             }
         });
- 
+ // Auszahlung & Spielende
+function cashOut() {
+    if (!gameActive) return;
+
+    gameActive = false;
+    document.getElementById('spinButton').disabled = true;
+    document.getElementById('cashOutButton').disabled = true;
+
+    showMessage(`🏁 Spiel beendet mit ${balance} Drachencoins! 🏁`, '#00ffff');
+}
+
         // Initialize Game
         function initializeGame() {
             generateNewSymbols();
