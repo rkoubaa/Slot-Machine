@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Way to a Gazillion Dollars - Slot Machine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+ 
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+ 
+        /* Login Screen */
+        .login-screen {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid #ffd700;
+        }
+ 
+        .login-screen h1 {
+            color: #ffd700;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+        }
+ 
+        .login-screen input {
+            padding: 15px;
+            font-size: 18px;
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            margin: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            text-align: center;
+        }
+ 
+        .login-screen input::placeholder {
+            color: #ccc;
+        }
+ 
+        .login-screen button {
+            padding: 15px 30px;
+            font-size: 18px;
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+ 
+        .login-screen button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(255, 215, 0, 0.5);
+        }
+ 
+        .error {
+            color: #ff4444;
+            margin-top: 10px;
+        }
+ 
+        /* Game Screen */
+        .game-container {
+            display: none;
+            text-align: center;
+            max-width: 1200px;
+            padding: 20px;
+        }
+ 
+        .game-title {
+            font-size: 2.5em;
+            color: #ffd700;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+ 
+        .slot-machine {
+            background: linear-gradient(45deg, #2c1810, #3d2817);
+            border: 5px solid #ffd700;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+ 
+        .reels-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 30px 0;
+        }
+ 
+        .reel {
+            width: 120px;
+            height: 120px;
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.7);
+            font-size: 60px;
+            transition: all 0.1s;
+        }
+ 
+        .reel.spinning {
+            animation: spin 0.1s infinite;
+        }
+ 
+        @keyframes spin {
+            0% { transform: rotateY(0deg); }
+            100% { transform: rotateY(360deg); }
+        }
+ 
+        .symbol {
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 10px;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+ 
+        .symbol.sieben { background-image: url('images/sieben.png'); }
+        .symbol.diamant { background-image: url('images/diamant.png'); }
+        .symbol.glocke { background-image: url('images/glocke.png'); }
+        .symbol.traube { background-image: url('images/traube.png'); }
+        .symbol.melone { background-image: url('images/melone.png'); }
+        .symbol.banane { background-image: url('images/banane.png'); }
+ 
+        .info-panel {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+ 
+        .info-item {
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+            min-width: 200px;
+        }
+ 
+        .coin {
+            color: #ffd700;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+ 
+        .balance {
+            color: white;
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+ 
+        .message {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin: 15px 0;
+            min-height: 30px;
+        }
+ 
+        .spin-button {
+            font-size: 24px;
+            padding: 20px 40px;
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+            border: none;
+            border-radius: 15px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 20px;
+            text-transform: uppercase;
+        }
+ 
+        .spin-button:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(238, 90, 36, 0.4);
+        }
+ 
+        .spin-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+ 
+        .instructions {
+            color: #00ffff;
+            font-size: 1.1em;
+            margin: 20px 0;
+        }
+ 
+        .motivation {
+            color: #00ffff;
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+ 
+        .bonus-indicator {
+            background: linear-gradient(45deg, #00ff00, #008800);
+            color: white;
+            padding: 10px;
+            border-radius: 10px;
+            font-weight: bold;
+            margin: 10px 0;
+            animation: pulse 1s infinite;
+        }
+ 
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+ 
+        .payouts {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 2px solid #ffd700;
+        }
+ 
+        .payouts h3 {
+            color: #ffd700;
+            margin-bottom: 15px;
+        }
+ 
+        .payout-row {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            padding: 5px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+ 
+        @media (max-width: 768px) {
+            .reels-container {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+            
+            .reel {
+                width: 90px;
+                height: 90px;
+                font-size: 45px;
+            }
+            
+            .symbol {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .game-title {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div class="login-screen" id="loginScreen">
+        <h1>🎰 Dragon Slots 🎰</h1>
+        <h2>Your Way to a Gazillion Dollars!</h2>
+        <div style="margin: 30px 0;">
+            <input type="password" id="passwordInput" placeholder="Passwort eingeben" maxlength="20">
+            <br>
+            <button onclick="checkPassword()">Spiel Starten</button>
+        </div>
+        <div id="errorMessage" class="error"></div>
+    </div>
+ 
+    <!-- Game Screen -->
+    <div class="game-container" id="gameContainer">
+        <h1 class="game-title">🐉 Your Way to a Gazillion Dollars! 🐉</h1>
+        
+        <div class="slot-machine">
+            <div class="reels-container" id="reelsContainer">
+                <div class="reel" id="reel0"></div>
+                <div class="reel" id="reel1"></div>
+                <div class="reel" id="reel2"></div>
+                <div class="reel" id="reel3"></div>
+                <div class="reel" id="reel4"></div>
+            </div>
+ 
+            <div class="info-panel">
+                <div class="info-item">
+                    <div class="coin">🪙 Drachencoins</div>
+                    <div class="balance" id="balance">500</div>
+                </div>
+                <div class="info-item">
+                    <div style="color: #00ffff;">Einsatz pro Runde</div>
+                    <div style="color: #ffd700; font-size: 1.2em; font-weight: bold;">10 Coins</div>
+                </div>
+            </div>
+ 
+            <div class="message" id="message">Bereit zum Spielen!</div>
+            
+            <div id="bonusIndicator" style="display: none;" class="bonus-indicator">
+                🔥 BONUS AKTIV - NÄCHSTER GEWINN VERDOPPELT! 🔥
+            </div>
+ 
+            <button class="spin-button" onclick="spin()" id="spinButton">
+                🎰 DREHEN (Leertaste)
+            </button>
+ 
+            <div class="instructions">
+                LEERTASTE = Drehen | Einsatz: 10 Drachencoins
+            </div>
+ 
+            <div class="motivation">
+                🚀 Your way to a Gazillion Dollars! 🚀
+            </div>
+        </div>
+ 
+        <div class="payouts">
+            <h3>💰 Auszahlungstabelle</h3>
+            <div class="payout-row">
+                <span>5x Sieben (7️⃣)</span>
+                <span style="color: #ffd700;">1000 Coins</span>
+            </div>
+            <div class="payout-row">
+                <span>5x Diamant (💎)</span>
+                <span style="color: #ffd700;">600 Coins</span>
+            </div>
+            <div class="payout-row">
+                <span>5x Glocke (🔔)</span>
+                <span style="color: #ffd700;">450 Coins</span>
+            </div>
+            <div class="payout-row">
+                <span>5x Traube/Melone/Banane</span>
+                <span style="color: #ffd700;">400 Coins</span>
+            </div>
+            <div class="payout-row">
+                <span>Spezial: 🔔💎7️⃣💎🔔</span>
+                <span style="color: #ff6b6b;">800 Coins</span>
+            </div>
+            <div class="payout-row">
+                <span>4x Sieben + 1 Diamant</span>
+                <span style="color: #ff6b6b;">500 Coins</span>
+            </div>
+        </div>
+    </div>
+ 
+    <script>
+        // Game Variables
+        const SYMBOLS = ['sieben', 'diamant', 'glocke', 'traube', 'melone', 'banane'];
+        const SYMBOL_EMOJIS = {
+            'sieben': '7️⃣',
+            'diamant': '💎',
+            'glocke': '🔔',
+            'traube': '🍇',
+            'melone': '🍉',
+            'banane': '🍌'
+        };
+ 
+        const BET_AMOUNT = 10;
+        const START_BALANCE = 500;
+        const CORRECT_PASSWORD = "gamble4live"; // Ändere das Passwort hier
+ 
+        const JACKPOT_PAYOUTS = {
+            'sieben': 1000,
+            'diamant': 600,
+            'glocke': 450,
+            'traube': 400,
+            'melone': 400,
+            'banane': 400
+        };
+ 
+        const FOUR_MATCH_PAYOUTS = {
+            'sieben': 100,
+            'diamant': 50,
+            'glocke': 30,
+            'traube': 20,
+            'melone': 20,
+            'banane': 20
+        };
+ 
+        const THREE_MATCH_PAYOUTS = {
+            'sieben': 30,
+            'diamant': 20,
+            'glocke': 15,
+            'traube': 10,
+            'melone': 10,
+            'banane': 10
+        };
+ 
+        let currentSymbols = [];
+        let balance = START_BALANCE;
+        let gameActive = true;
+        let isSpinning = false;
+        let winHistory = [];
+        let multiplierReady = false;
+ 
+        // Password Check
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            if (input === CORRECT_PASSWORD) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('gameContainer').style.display = 'block';
+                initializeGame();
+            } else {
+                document.getElementById('errorMessage').textContent = 'Falsches Passwort!';
+                document.getElementById('passwordInput').value = '';
+            }
+        }
+ 
+        // Enter key for password
+        document.getElementById('passwordInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+ 
+        // Initialize Game
+        function initializeGame() {
+            generateNewSymbols();
+            updateDisplay();
+            
+            // Spacebar listener for spinning
+            document.addEventListener('keydown', function(e) {
+                if (e.code === 'Space' && !isSpinning) {
+                    e.preventDefault();
+                    spin();
+                }
+            });
+        }
+ 
+        // Generate new random symbols
+        function generateNewSymbols() {
+            currentSymbols = [];
+            for (let i = 0; i < 5; i++) {
+                currentSymbols.push(SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)]);
+            }
+        }
+ 
+        // Update display
+        function updateDisplay() {
+            // Update reels
+            for (let i = 0; i < 5; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                const symbol = currentSymbols[i];
+                reel.innerHTML = `<div class="symbol ${symbol}">${SYMBOL_EMOJIS[symbol]}</div>`;
+            }
+ 
+            // Update balance
+            document.getElementById('balance').textContent = balance;
+ 
+            // Update bonus indicator
+            const bonusIndicator = document.getElementById('bonusIndicator');
+            if (multiplierReady) {
+                bonusIndicator.style.display = 'block';
+            } else {
+                bonusIndicator.style.display = 'none';
+            }
+        }
+ 
+        // Spin function
+        function spin() {
+            if (!gameActive || isSpinning) return;
+ 
+            if (balance < BET_AMOUNT) {
+                showMessage('GAME OVER! Endstand: ' + balance + ' Drachencoins', '#ff4444');
+                gameActive = false;
+                document.getElementById('spinButton').disabled = true;
+                return;
+            }
+ 
+            isSpinning = true;
+            balance -= BET_AMOUNT;
+            
+            showMessage('Walzen drehen...', '#ffff44');
+            document.getElementById('spinButton').disabled = true;
+ 
+            // Animation
+            animateSpin();
+        }
+ 
+        // Animate spinning
+        function animateSpin() {
+            const reels = document.querySelectorAll('.reel');
+            
+            // Add spinning class
+            reels.forEach(reel => reel.classList.add('spinning'));
+ 
+            // Animate for 2 seconds
+            let animationFrames = 0;
+            const maxFrames = 25;
+            
+            const animationInterval = setInterval(() => {
+                // Generate random symbols during animation
+                for (let i = 0; i < 5; i++) {
+                    const reel = document.getElementById(`reel${i}`);
+                    const randomSymbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+                    reel.innerHTML = `<div class="symbol ${randomSymbol}">${SYMBOL_EMOJIS[randomSymbol]}</div>`;
+                }
+                
+                animationFrames++;
+                
+                if (animationFrames >= maxFrames) {
+                    clearInterval(animationInterval);
+                    
+                    // Remove spinning class
+                    reels.forEach(reel => reel.classList.remove('spinning'));
+                    
+                    // Generate final symbols
+                    generateNewSymbols();
+                    updateDisplay();
+                    
+                    // Evaluate win
+                    const winAmount = evaluateWin();
+                    processWinResult(winAmount);
+                    
+                    isSpinning = false;
+                    document.getElementById('spinButton').disabled = false;
+                }
+            }, 80);
+ 
+            updateDisplay();
+        }
+ 
+        // Evaluate win
+        function evaluateWin() {
+            if (isJackpot()) {
+                return JACKPOT_PAYOUTS[currentSymbols[0]];
+            }
+ 
+            if (isSpecialCombination()) {
+                return 800;
+            }
+ 
+            if (isSpecialSevenDiamondCombo()) {
+                return 500;
+            }
+ 
+            let fourMatchWin = checkConsecutiveMatches(4, FOUR_MATCH_PAYOUTS);
+            if (fourMatchWin > 0) return fourMatchWin;
+ 
+            let threeMatchWin = checkConsecutiveMatches(3, THREE_MATCH_PAYOUTS);
+            if (threeMatchWin > 0) return threeMatchWin;
+ 
+            return 0;
+        }
+ 
+        // Check for jackpot (5 matching symbols)
+        function isJackpot() {
+            const firstSymbol = currentSymbols[0];
+            return currentSymbols.every(symbol => symbol === firstSymbol);
+        }
+ 
+        // Check for special combination
+        function isSpecialCombination() {
+            const special = ['glocke', 'diamant', 'sieben', 'diamant', 'glocke'];
+            return JSON.stringify(currentSymbols) === JSON.stringify(special);
+        }
+ 
+        // Check consecutive matches
+        function checkConsecutiveMatches(count, payouts) {
+            for (let symbol of SYMBOLS) {
+                for (let i = 0; i <= 5 - count; i++) {
+                    let matches = true;
+                    for (let j = 0; j < count; j++) {
+                        if (currentSymbols[i + j] !== symbol) {
+                            matches = false;
+                            break;
+                        }
+                    }
+                    if (matches) {
+                        return payouts[symbol];
+                    }
+                }
+            }
+            return 0;
+        }
+ 
+        // Check special seven-diamond combo
+        function isSpecialSevenDiamondCombo() {
+            const sevenCount = currentSymbols.filter(s => s === 'sieben').length;
+            const hasDiamond = currentSymbols.includes('diamant');
+            return sevenCount === 4 && hasDiamond;
+        }
+ 
+        // Process win result
+        function processWinResult(winAmount) {
+            const hasWon = winAmount > 0;
+ 
+            // Update win history
+            winHistory.push(hasWon);
+            if (winHistory.length > 3) {
+                winHistory.shift();
+            }
+ 
+            // Check for multiplier activation
+            if (winHistory.length >= 2) {
+                const lastTwoWins = winHistory[winHistory.length - 1] && winHistory[winHistory.length - 2];
+                if (lastTwoWins && !multiplierReady) {
+                    multiplierReady = true;
+                }
+            }
+ 
+            let finalWin = winAmount;
+            let message = '';
+            let messageColor = '#ffff44';
+ 
+            if (multiplierReady && hasWon) {
+                finalWin *= 2;
+                multiplierReady = false;
+                message = `🔥 JACKPOT BONUS! ${finalWin} Drachencoins! 🔥`;
+                messageColor = '#00ff00';
+            } else if (hasWon) {
+                message = `💰 Gewinn: ${winAmount} Drachencoins! 💰`;
+                messageColor = '#ffff44';
+            } else {
+                message = '🎯 Kein Gewinn - Nächster Versuch! 🎯';
+                messageColor = '#ff8844';
+            }
+ 
+            balance += finalWin;
+            updateDisplay();
+            showMessage(message, messageColor);
+        }
+ 
+        // Show message
+        function showMessage(text, color) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.style.color = color;
+        }
+    </script>
+</body>
+</html>
