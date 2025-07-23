@@ -72,6 +72,63 @@
             color: #ff4444;
             margin-top: 10px;
         }
+
+        /* Cash Out Screen */
+        .cashout-screen {
+            display: none;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 50px;
+            border-radius: 20px;
+            text-align: center;
+            border: 3px solid #ffd700;
+            max-width: 600px;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .cashout-screen h1 {
+            color: #ffd700;
+            font-size: 3em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .cashout-screen .final-amount {
+            color: #00ff00;
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 30px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .cashout-screen .message {
+            color: #00ffff;
+            font-size: 1.5em;
+            margin: 20px 0;
+        }
+
+        .cashout-screen button {
+            padding: 20px 40px;
+            font-size: 20px;
+            background: linear-gradient(45deg, #00c9ff, #92fe9d);
+            border: none;
+            border-radius: 15px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+            text-transform: uppercase;
+        }
+
+        .cashout-screen button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 201, 255, 0.4);
+        }
  
         /* Game Screen */
         .game-container {
@@ -274,6 +331,19 @@
             .game-title {
                 font-size: 1.8em;
             }
+
+            .cashout-screen {
+                padding: 30px;
+                margin: 20px;
+            }
+
+            .cashout-screen h1 {
+                font-size: 2em;
+            }
+
+            .cashout-screen .final-amount {
+                font-size: 2em;
+            }
         }
     </style>
 </head>
@@ -288,6 +358,16 @@
             <button onclick="checkPassword()">Spiel Starten</button>
         </div>
         <div id="errorMessage" class="error"></div>
+    </div>
+
+    <!-- Cash Out Screen -->
+    <div class="cashout-screen" id="cashoutScreen">
+        <h1>🏁 Spiel Beendet! 🏁</h1>
+        <div class="message">Herzlichen Glückwunsch!</div>
+        <div class="final-amount" id="finalAmount">0 Drachencoins</div>
+        <div class="message">Du hast erfolgreich ausgezahlt! 💰</div>
+        <button onclick="playAgain()">🎰 Nochmal Spielen</button>
+        <button onclick="goToLogin()">🚪 Spiel Verlassen</button>
     </div>
  
     <!-- Game Screen -->
@@ -323,9 +403,9 @@
             <button class="spin-button" onclick="spin()" id="spinButton">
                 🎰 DREHEN (Leertaste)
             </button>
- <button class="spin-button" onclick="cashOut()" id="cashOutButton" style="background: linear-gradient(45deg, #00c9ff, #92fe9d);">
-    💸 Auszahlen & Beenden
-</button>
+            <button class="spin-button" onclick="cashOut()" id="cashOutButton" style="background: linear-gradient(45deg, #00c9ff, #92fe9d);">
+                💸 Auszahlen & Beenden
+            </button>
 
             <div class="instructions">
                 LEERTASTE = Drehen | Einsatz: 10 Drachencoins
@@ -414,18 +494,59 @@
         let isSpinning = false;
         let winHistory = [];
         let multiplierReady = false;
+        let passwordEntered = false;
  
         // Password Check
         function checkPassword() {
             const input = document.getElementById('passwordInput').value;
             if (input === CORRECT_PASSWORD) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('gameContainer').style.display = 'block';
-                initializeGame();
+                passwordEntered = true;
+                showGameScreen();
             } else {
                 document.getElementById('errorMessage').textContent = 'Falsches Passwort!';
                 document.getElementById('passwordInput').value = '';
             }
+        }
+
+        // Show game screen
+        function showGameScreen() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('cashoutScreen').style.display = 'none';
+            document.getElementById('gameContainer').style.display = 'block';
+            initializeGame();
+        }
+
+        // Show cash out screen
+        function showCashoutScreen(finalBalance) {
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('cashoutScreen').style.display = 'block';
+            document.getElementById('finalAmount').textContent = `${finalBalance} Drachencoins`;
+        }
+
+        // Play again function
+        function playAgain() {
+            // Reset game variables
+            balance = START_BALANCE;
+            gameActive = true;
+            isSpinning = false;
+            winHistory = [];
+            multiplierReady = false;
+            
+            // Reset buttons
+            document.getElementById('spinButton').disabled = false;
+            document.getElementById('cashOutButton').disabled = false;
+            
+            // Show game screen
+            showGameScreen();
+        }
+
+        // Go back to login
+        function goToLogin() {
+            passwordEntered = false;
+            document.getElementById('cashoutScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            document.getElementById('passwordInput').value = '';
+            document.getElementById('errorMessage').textContent = '';
         }
  
         // Enter key for password
@@ -434,25 +555,27 @@
                 checkPassword();
             }
         });
- // Auszahlung & Spielende
-function cashOut() {
-    if (!gameActive) return;
 
-    gameActive = false;
-    document.getElementById('spinButton').disabled = true;
-    document.getElementById('cashOutButton').disabled = true;
+        // Auszahlung & Spielende
+        function cashOut() {
+            if (!gameActive) return;
 
-    showMessage(`🏁 Spiel beendet mit ${balance} Drachencoins! 🏁`, '#00ffff');
-}
+            gameActive = false;
+            document.getElementById('spinButton').disabled = true;
+            document.getElementById('cashOutButton').disabled = true;
+
+            showCashoutScreen(balance);
+        }
 
         // Initialize Game
         function initializeGame() {
             generateNewSymbols();
             updateDisplay();
+            showMessage('Bereit zum Spielen!', '#00ffff');
             
             // Spacebar listener for spinning
             document.addEventListener('keydown', function(e) {
-                if (e.code === 'Space' && !isSpinning) {
+                if (e.code === 'Space' && !isSpinning && gameActive) {
                     e.preventDefault();
                     spin();
                 }
@@ -496,6 +619,7 @@ function cashOut() {
                 showMessage('GAME OVER! Endstand: ' + balance + ' Drachencoins', '#ff4444');
                 gameActive = false;
                 document.getElementById('spinButton').disabled = true;
+                document.getElementById('cashOutButton').disabled = true;
                 return;
             }
  
