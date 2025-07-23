@@ -364,7 +364,7 @@
     <div class="cashout-screen" id="cashoutScreen">
         <h1>🏁 Spiel Beendet! 🏁</h1>
         <div class="message">Herzlichen Glückwunsch!</div>
-        <div class="final-amount" id="finalAmount">0 Drachencoins</div>
+        <div class="final-amount" id="finalAmount">0 Coins</div>
         <div class="message">Du hast erfolgreich ausgezahlt! 💰</div>
         <button onclick="playAgain()">🎰 Nochmal Spielen</button>
         <button onclick="goToLogin()">🚪 Spiel Verlassen</button>
@@ -372,7 +372,7 @@
  
     <!-- Game Screen -->
     <div class="game-container" id="gameContainer">
-        <h1 class="game-title">🐉 Your Way to a Gazillion Dollars! 🐉</h1>
+        <h1 class="game-title"> Your Way to a Gazillion Dollars! </h1>
         
         <div class="slot-machine">
             <div class="reels-container" id="reelsContainer">
@@ -385,7 +385,7 @@
  
             <div class="info-panel">
                 <div class="info-item">
-                    <div class="coin">🪙 Drachencoins</div>
+                    <div class="coin">🪙 Coins</div>
                     <div class="balance" id="balance">500</div>
                 </div>
                 <div class="info-item">
@@ -408,7 +408,7 @@
             </button>
 
             <div class="instructions">
-                LEERTASTE = Drehen | Einsatz: 10 Drachencoins
+                LEERTASTE = Drehen | Einsatz: 10 Coins
             </div>
  
             <div class="motivation">
@@ -459,7 +459,7 @@
  
         const BET_AMOUNT = 10;
         const START_BALANCE = 500;
-        const CORRECT_PASSWORD = "gamble4life"; // Ändere das Passwort hier
+        const CORRECT_PASSWORD = "gamble4life"; 
  
         const JACKPOT_PAYOUTS = {
             'sieben': 1000,
@@ -520,7 +520,7 @@
         function showCashoutScreen(finalBalance) {
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('cashoutScreen').style.display = 'block';
-            document.getElementById('finalAmount').textContent = `${finalBalance} Drachencoins`;
+            document.getElementById('finalAmount').textContent = `${finalBalance} Coins`;
         }
 
         // Play again function
@@ -616,7 +616,7 @@
             if (!gameActive || isSpinning) return;
  
             if (balance < BET_AMOUNT) {
-                showMessage('GAME OVER! Endstand: ' + balance + ' Drachencoins', '#ff4444');
+                showMessage('GAME OVER! Endstand: ' + balance + ' Coins', '#ff4444');
                 gameActive = false;
                 document.getElementById('spinButton').disabled = true;
                 document.getElementById('cashOutButton').disabled = true;
@@ -762,10 +762,10 @@
             if (multiplierReady && hasWon) {
                 finalWin *= 2;
                 multiplierReady = false;
-                message = `🔥 JACKPOT BONUS! ${finalWin} Drachencoins! 🔥`;
+                message = `🔥 JACKPOT BONUS! ${finSpielen} Coins! 🔥`;
                 messageColor = '#00ff00';
             } else if (hasWon) {
-                message = `💰 Gewinn: ${winAmount} Drachencoins! 💰`;
+                message = `💰 Gewinn: ${winAmount} Coins! 💰`;
                 messageColor = '#ffff44';
             } else {
                 message = '🎯 Kein Gewinn - Nächster Versuch! 🎯';
