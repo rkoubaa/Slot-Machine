@@ -73,8 +73,8 @@
             margin-top: 10px;
         }
 
-        /* Cash Out Screen */
-        .cashout-screen {
+        /* Cash Out Screen & Game Over Screen */
+        .cashout-screen, .gameover-screen {
             display: none;
             background: rgba(0, 0, 0, 0.9);
             padding: 50px;
@@ -85,19 +85,27 @@
             animation: fadeIn 0.5s ease-in;
         }
 
+        .gameover-screen {
+            border-color: #ff4444;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; transform: scale(0.8); }
             to { opacity: 1; transform: scale(1); }
         }
 
-        .cashout-screen h1 {
+        .cashout-screen h1, .gameover-screen h1 {
             color: #ffd700;
             font-size: 3em;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        .cashout-screen .final-amount {
+        .gameover-screen h1 {
+            color: #ff4444;
+        }
+
+        .cashout-screen .final-amount, .gameover-screen .final-amount {
             color: #00ff00;
             font-size: 2.5em;
             font-weight: bold;
@@ -105,13 +113,17 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
-        .cashout-screen .message {
+        .gameover-screen .final-amount {
+            color: #ff4444;
+        }
+
+        .cashout-screen .message, .gameover-screen .message {
             color: #00ffff;
             font-size: 1.5em;
             margin: 20px 0;
         }
 
-        .cashout-screen button {
+        .cashout-screen button, .gameover-screen button {
             padding: 20px 40px;
             font-size: 20px;
             background: linear-gradient(45deg, #00c9ff, #92fe9d);
@@ -125,7 +137,7 @@
             text-transform: uppercase;
         }
 
-        .cashout-screen button:hover {
+        .cashout-screen button:hover, .gameover-screen button:hover {
             transform: scale(1.1);
             box-shadow: 0 8px 25px rgba(0, 201, 255, 0.4);
         }
@@ -289,6 +301,40 @@
             100% { transform: scale(1); }
         }
  
+        .bet-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .bet-button {
+            background: linear-gradient(45deg, #ffd700, #ff8c00);
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            color: #000;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bet-button:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .bet-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
         .payouts {
             background: rgba(0, 0, 0, 0.8);
             padding: 20px;
@@ -332,17 +378,32 @@
                 font-size: 1.8em;
             }
 
-            .cashout-screen {
+            .cashout-screen, .gameover-screen {
                 padding: 30px;
                 margin: 20px;
             }
 
-            .cashout-screen h1 {
+            .cashout-screen h1, .gameover-screen h1 {
                 font-size: 2em;
             }
 
-            .cashout-screen .final-amount {
+            .cashout-screen .final-amount, .gameover-screen .final-amount {
                 font-size: 2em;
+            }
+
+            .bet-controls {
+                gap: 10px;
+            }
+
+            .bet-button {
+                width: 35px;
+                height: 35px;
+                font-size: 16px;
+            }
+
+            .bet-amount {
+                font-size: 1.2em;
+                min-width: 60px;
             }
         }
     </style>
@@ -360,7 +421,15 @@
         <div id="errorMessage" class="error"></div>
     </div>
 
-    <!-- Cash Out Screen -->
+    <!-- Game Over Screen -->
+    <div class="gameover-screen" id="gameoverScreen">
+        <h1>💀 GAME OVER! 💀</h1>
+        <div class="message">Deine Coins sind aufgebraucht!</div>
+        <div class="final-amount" id="gameoverAmount">0 Coins</div>
+        <div class="message">Besser Glück beim nächsten Mal! 🎰</div>
+        <button onclick="playAgain()">🎰 Nochmal Spielen</button>
+        <button onclick="goToLogin()">🚪 Spiel Verlassen</button>
+    </div>
     <div class="cashout-screen" id="cashoutScreen">
         <h1>🏁 Spiel Beendet! 🏁</h1>
         <div class="message">Herzlichen Glückwunsch!</div>
@@ -385,12 +454,17 @@
  
             <div class="info-panel">
                 <div class="info-item">
-                    <div class="coin">🪙 Coins</div>
+                    <div class="coin">🪙 Coins </div>
                     <div class="balance" id="balance">500</div>
                 </div>
                 <div class="info-item">
                     <div style="color: #00ffff;">Einsatz pro Runde</div>
-                    <div style="color: #ffd700; font-size: 1.2em; font-weight: bold;">10 Coins</div>
+                    <div class="bet-controls">
+                        <button class="bet-button" onclick="changeBet(-10)">◀</button>
+                        <span class="bet-amount" id="betAmount">10</span>
+                        <button class="bet-button" onclick="changeBet(10)">▶</button>
+                    </div>
+                    <div style="color: #aaa; font-size: 0.9em;">Min: 10 | Max: 250</div>
                 </div>
             </div>
  
@@ -408,7 +482,7 @@
             </button>
 
             <div class="instructions">
-                LEERTASTE = Drehen | Einsatz: 10 Coins
+                LEERTASTE = Drehen | Einsatz: <span id="instructionBet">10</span> Coins
             </div>
  
             <div class="motivation">
@@ -417,30 +491,30 @@
         </div>
  
         <div class="payouts">
-            <h3>💰 Auszahlungstabelle für große Gewinne</h3>
+            <h3>💰 Auszahlungstabelle (bei 10 Coin Einsatz)</h3>
             <div class="payout-row">
                 <span>5x Sieben (7️⃣)</span>
-                <span style="color: #ffd700;">1000 Coins</span>
+                <span style="color: #ffd700;" id="payout-sieben">1000 Coins</span>
             </div>
             <div class="payout-row">
                 <span>5x Diamant (💎)</span>
-                <span style="color: #ffd700;">600 Coins</span>
+                <span style="color: #ffd700;" id="payout-diamant">600 Coins</span>
             </div>
             <div class="payout-row">
                 <span>5x Glocke (🔔)</span>
-                <span style="color: #ffd700;">450 Coins</span>
+                <span style="color: #ffd700;" id="payout-glocke">450 Coins</span>
             </div>
             <div class="payout-row">
                 <span>5x Traube/Melone/Banane</span>
-                <span style="color: #ffd700;">400 Coins</span>
+                <span style="color: #ffd700;" id="payout-fruit">400 Coins</span>
             </div>
             <div class="payout-row">
                 <span>Spezial: 🔔💎7️⃣💎🔔</span>
-                <span style="color: #ff6b6b;">800 Coins</span>
+                <span style="color: #ff6b6b;" id="payout-special">800 Coins</span>
             </div>
             <div class="payout-row">
                 <span>4x Sieben + 1 Diamant</span>
-                <span style="color: #ff6b6b;">500 Coins</span>
+                <span style="color: #ff6b6b;" id="payout-combo">500 Coins</span>
             </div>
         </div>
     </div>
@@ -457,9 +531,11 @@
             'banane': '🍌'
         };
  
-        const BET_AMOUNT = 10;
+        const BET_AMOUNT_DEFAULT = 10;
+        const BET_MIN = 10;
+        const BET_MAX = 250;
         const START_BALANCE = 500;
-        const CORRECT_PASSWORD = "gamble4life"; 
+        const CORRECT_PASSWORD = "gamble4life";
  
         const JACKPOT_PAYOUTS = {
             'sieben': 1000,
@@ -490,6 +566,7 @@
  
         let currentSymbols = [];
         let balance = START_BALANCE;
+        let betAmount = BET_AMOUNT_DEFAULT;
         let gameActive = true;
         let isSpinning = false;
         let winHistory = [];
@@ -516,7 +593,12 @@
             initializeGame();
         }
 
-        // Show cash out screen
+        // Show game over screen
+        function showGameoverScreen(finalBalance) {
+            document.getElementById('gameContainer').style.display = 'none';
+            document.getElementById('gameoverScreen').style.display = 'block';
+            document.getElementById('gameoverAmount').textContent = `${finalBalance} Coins`;
+        }
         function showCashoutScreen(finalBalance) {
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('cashoutScreen').style.display = 'block';
@@ -527,6 +609,7 @@
         function playAgain() {
             // Reset game variables
             balance = START_BALANCE;
+            betAmount = BET_AMOUNT_DEFAULT;
             gameActive = true;
             isSpinning = false;
             winHistory = [];
@@ -544,12 +627,44 @@
         function goToLogin() {
             passwordEntered = false;
             document.getElementById('cashoutScreen').style.display = 'none';
+            document.getElementById('gameoverScreen').style.display = 'none';
             document.getElementById('loginScreen').style.display = 'block';
             document.getElementById('passwordInput').value = '';
             document.getElementById('errorMessage').textContent = '';
         }
  
-        // Enter key for password
+        // Change bet amount
+        function changeBet(change) {
+            if (!gameActive || isSpinning) return;
+            
+            const newBet = betAmount + change;
+            if (newBet >= BET_MIN && newBet <= BET_MAX) {
+                betAmount = newBet;
+                updateBetDisplay();
+            }
+        }
+
+        // Update bet display
+        function updateBetDisplay() {
+            document.getElementById('betAmount').textContent = betAmount;
+            document.getElementById('instructionBet').textContent = betAmount;
+            
+            // Update payout table
+            const multiplier = betAmount / BET_AMOUNT_DEFAULT;
+            document.getElementById('payout-sieben').textContent = Math.round(1000 * multiplier) + ' Coins';
+            document.getElementById('payout-diamant').textContent = Math.round(600 * multiplier) + ' Coins';
+            document.getElementById('payout-glocke').textContent = Math.round(450 * multiplier) + ' Coins';
+            document.getElementById('payout-fruit').textContent = Math.round(400 * multiplier) + ' Coins';
+            document.getElementById('payout-special').textContent = Math.round(800 * multiplier) + ' Coins';
+            document.getElementById('payout-combo').textContent = Math.round(500 * multiplier) + ' Coins';
+            
+            // Update bet buttons
+            const decreaseBtn = document.querySelector('.bet-button:first-child');
+            const increaseBtn = document.querySelector('.bet-button:last-child');
+            
+            decreaseBtn.disabled = (betAmount <= BET_MIN);
+            increaseBtn.disabled = (betAmount >= BET_MAX);
+        }
         document.getElementById('passwordInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 checkPassword();
@@ -571,6 +686,7 @@
         function initializeGame() {
             generateNewSymbols();
             updateDisplay();
+            updateBetDisplay();
             showMessage('Bereit zum Spielen!', '#00ffff');
             
             // Spacebar listener for spinning
@@ -615,16 +731,16 @@
         function spin() {
             if (!gameActive || isSpinning) return;
  
-            if (balance < BET_AMOUNT) {
-                showMessage('GAME OVER! Endstand: ' + balance + ' Coins', '#ff4444');
+            if (balance < betAmount) {
                 gameActive = false;
                 document.getElementById('spinButton').disabled = true;
                 document.getElementById('cashOutButton').disabled = true;
+                showGameoverScreen(balance);
                 return;
             }
  
             isSpinning = true;
-            balance -= BET_AMOUNT;
+            balance -= betAmount;
             
             showMessage('Walzen drehen...', '#ffff44');
             document.getElementById('spinButton').disabled = true;
@@ -678,22 +794,24 @@
  
         // Evaluate win
         function evaluateWin() {
+            const multiplier = betAmount / BET_AMOUNT_DEFAULT;
+            
             if (isJackpot()) {
-                return JACKPOT_PAYOUTS[currentSymbols[0]];
+                return Math.round(JACKPOT_PAYOUTS[currentSymbols[0]] * multiplier);
             }
  
             if (isSpecialCombination()) {
-                return 800;
+                return Math.round(800 * multiplier);
             }
  
             if (isSpecialSevenDiamondCombo()) {
-                return 500;
+                return Math.round(500 * multiplier);
             }
  
-            let fourMatchWin = checkConsecutiveMatches(4, FOUR_MATCH_PAYOUTS);
+            let fourMatchWin = checkConsecutiveMatches(4, FOUR_MATCH_PAYOUTS, multiplier);
             if (fourMatchWin > 0) return fourMatchWin;
  
-            let threeMatchWin = checkConsecutiveMatches(3, THREE_MATCH_PAYOUTS);
+            let threeMatchWin = checkConsecutiveMatches(3, THREE_MATCH_PAYOUTS, multiplier);
             if (threeMatchWin > 0) return threeMatchWin;
  
             return 0;
@@ -712,7 +830,7 @@
         }
  
         // Check consecutive matches
-        function checkConsecutiveMatches(count, payouts) {
+        function checkConsecutiveMatches(count, payouts, multiplier) {
             for (let symbol of SYMBOLS) {
                 for (let i = 0; i <= 5 - count; i++) {
                     let matches = true;
@@ -723,7 +841,7 @@
                         }
                     }
                     if (matches) {
-                        return payouts[symbol];
+                        return Math.round(payouts[symbol] * multiplier);
                     }
                 }
             }
@@ -762,7 +880,7 @@
             if (multiplierReady && hasWon) {
                 finalWin *= 2;
                 multiplierReady = false;
-                message = `🔥 JACKPOT BONUS! ${finSpielen} Coins! 🔥`;
+                message = `🔥 JACKPOT BONUS! ${finalWin} Coins! 🔥`;
                 messageColor = '#00ff00';
             } else if (hasWon) {
                 message = `💰 Gewinn: ${winAmount} Coins! 💰`;
