@@ -21,7 +21,6 @@
             align-items: center;
         }
  
-        /* Login Screen */
         .login-screen {
             background: rgba(0, 0, 0, 0.8);
             padding: 40px;
@@ -73,7 +72,6 @@
             margin-top: 10px;
         }
 
-        /* Cash Out Screen & Game Over Screen */
         .cashout-screen, .gameover-screen {
             display: none;
             background: rgba(0, 0, 0, 0.9);
@@ -142,7 +140,6 @@
             box-shadow: 0 8px 25px rgba(0, 201, 255, 0.4);
         }
  
-        /* Game Screen */
         .game-container {
             display: none;
             text-align: center;
@@ -278,22 +275,6 @@
             margin: 20px 0;
         }
  
-        .bonus-indicator {
-            background: linear-gradient(45deg, #00ff00, #008800);
-            color: white;
-            padding: 10px;
-            border-radius: 10px;
-            font-weight: bold;
-            margin: 10px 0;
-            animation: pulse 1s infinite;
-        }
- 
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
- 
         .bet-controls {
             display: flex;
             align-items: center;
@@ -409,7 +390,6 @@
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
     <div class="login-screen" id="loginScreen">
         <h1>🎰 Your Way to a Gazillion Dollars! 🎰</h1>
         <h2>Your Way to a Gazillion Dollars!</h2>
@@ -421,7 +401,6 @@
         <div id="errorMessage" class="error"></div>
     </div>
 
-    <!-- Game Over Screen -->
     <div class="gameover-screen" id="gameoverScreen">
         <h1>💀 GAME OVER! 💀</h1>
         <div class="message">Deine Coins sind aufgebraucht!</div>
@@ -431,7 +410,6 @@
         <button onclick="goToLogin()">🚪 Spiel Verlassen</button>
     </div>
 
-    <!-- Cash Out Screen -->
     <div class="cashout-screen" id="cashoutScreen">
         <h1>🏁 Spiel Beendet! 🏁</h1>
         <div class="message">Herzlichen Glückwunsch!</div>
@@ -441,7 +419,6 @@
         <button onclick="goToLogin()">🚪 Spiel Verlassen</button>
     </div>
  
-    <!-- Game Screen -->
     <div class="game-container" id="gameContainer">
         <h1 class="game-title">🐉 Your Way to a Gazillion Dollars! 🐉</h1>
         
@@ -462,19 +439,15 @@
                 <div class="info-item">
                     <div style="color: #00ffff;">Einsatz pro Runde</div>
                     <div class="bet-controls">
-                        <button class="bet-button" onclick="changeBet(-10)" id="decreaseBet">◀</button>
+                        <button class="bet-button" onclick="changeBet(-10)">◀</button>
                         <span class="bet-amount" id="betAmount">10</span>
-                        <button class="bet-button" onclick="changeBet(10)" id="increaseBet">▶</button>
+                        <button class="bet-button" onclick="changeBet(10)">▶</button>
                     </div>
                     <div style="color: #aaa; font-size: 0.9em;">Min: 10 | Max: 250</div>
                 </div>
             </div>
  
             <div class="message" id="message">Bereit zum Spielen!</div>
-            
-            <div id="bonusIndicator" style="display: none;" class="bonus-indicator">
-                🔥 BONUS AKTIV - NÄCHSTER GEWINN VERDOPPELT! 🔥
-            </div>
  
             <button class="spin-button" onclick="spin()" id="spinButton">
                 🎰 DREHEN (Leertaste)
@@ -522,7 +495,6 @@
     </div>
  
     <script>
-        // Game Variables
         const SYMBOLS = ['sieben', 'diamant', 'glocke', 'traube', 'melone', 'banane'];
         const SYMBOL_EMOJIS = {
             'sieben': '7️⃣',
@@ -558,11 +530,11 @@
         };
  
         const THREE_MATCH_PAYOUTS = {
-            'sieben': 40,
-            'diamant': 30,
-            'glocke': 25,
-            'traube': 20,
-            'melone': 20,
+            'sieben': 50,
+            'diamant': 40,
+            'glocke': 35,
+            'traube': 25,
+            'melone': 25,
             'banane': 20
         };
  
@@ -571,12 +543,9 @@
         let betAmount = BET_AMOUNT_DEFAULT;
         let gameActive = true;
         let isSpinning = false;
-        let winHistory = [];
-        let multiplierReady = false;
         let passwordEntered = false;
         let spacebarListener = null;
 
-        // PASSWORD CHECK FUNCTION - GLOBAL
         function checkPassword() {
             const input = document.getElementById('passwordInput');
             const errorElement = document.getElementById('errorMessage');
@@ -596,7 +565,6 @@
             }
         }
 
-        // Make functions globally available
         window.checkPassword = checkPassword;
         window.playAgain = playAgain;
         window.goToLogin = goToLogin;
@@ -604,12 +572,10 @@
         window.spin = spin;
         window.cashOut = cashOut;
  
-        // Initialize when page loads
         document.addEventListener('DOMContentLoaded', function() {
             initializePasswordHandler();
         });
 
-        // Password handler
         function initializePasswordHandler() {
             const passwordInput = document.getElementById('passwordInput');
             if (passwordInput) {
@@ -622,7 +588,6 @@
             }
         }
 
-        // Show game screen
         function showGameScreen() {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('cashoutScreen').style.display = 'none';
@@ -631,28 +596,23 @@
             initializeGame();
         }
 
-        // Show game over screen
         function showGameoverScreen(finalBalance) {
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('gameoverScreen').style.display = 'block';
             document.getElementById('gameoverAmount').textContent = `${finalBalance} Coins`;
         }
 
-        // Show cashout screen
         function showCashoutScreen(finalBalance) {
             document.getElementById('gameContainer').style.display = 'none';
             document.getElementById('cashoutScreen').style.display = 'block';
             document.getElementById('finalAmount').textContent = `${finalBalance} Coins`;
         }
 
-        // Play again function
         function playAgain() {
             balance = START_BALANCE;
             betAmount = BET_AMOUNT_DEFAULT;
             gameActive = true;
             isSpinning = false;
-            winHistory = [];
-            multiplierReady = false;
             
             document.getElementById('spinButton').disabled = false;
             document.getElementById('cashOutButton').disabled = false;
@@ -660,7 +620,6 @@
             showGameScreen();
         }
 
-        // Go back to login
         function goToLogin() {
             passwordEntered = false;
             removeSpacebarListener();
@@ -672,7 +631,6 @@
             document.getElementById('errorMessage').textContent = '';
         }
  
-        // Change bet amount
         function changeBet(change) {
             if (!gameActive || isSpinning) return;
             
@@ -683,7 +641,6 @@
             }
         }
 
-        // Update bet display
         function updateBetDisplay() {
             const betAmountElement = document.getElementById('betAmount');
             const instructionBetElement = document.getElementById('instructionBet');
@@ -693,7 +650,6 @@
             
             const multiplier = betAmount / BET_AMOUNT_DEFAULT;
             
-            // Update payout table
             const payoutElements = {
                 'payout-sieben': Math.round(1000 * multiplier),
                 'payout-diamant': Math.round(600 * multiplier),
@@ -708,7 +664,6 @@
                 if (element) element.textContent = value + ' Coins';
             }
             
-            // Update bet buttons state
             const decreaseBtn = document.querySelector('.bet-controls .bet-button:first-child');
             const increaseBtn = document.querySelector('.bet-controls .bet-button:last-child');
             
@@ -722,7 +677,6 @@
             }
         }
 
-        // Cash out function
         function cashOut() {
             if (!gameActive) return;
 
@@ -734,9 +688,7 @@
             showCashoutScreen(balance);
         }
 
-        // Initialize Game
         function initializeGame() {
-            // Reset game state
             gameActive = true;
             isSpinning = false;
             
@@ -746,12 +698,10 @@
             showMessage('Bereit zum Spielen!', '#00ffff');
             setupSpacebarListener();
             
-            // Enable buttons
             document.getElementById('spinButton').disabled = false;
             document.getElementById('cashOutButton').disabled = false;
         }
 
-        // Setup spacebar listener
         function setupSpacebarListener() {
             removeSpacebarListener();
             spacebarListener = function(e) {
@@ -763,7 +713,6 @@
             document.addEventListener('keydown', spacebarListener);
         }
 
-        // Remove spacebar listener
         function removeSpacebarListener() {
             if (spacebarListener) {
                 document.removeEventListener('keydown', spacebarListener);
@@ -771,28 +720,20 @@
             }
         }
  
-        // Generate new random symbols with MUCH better win chances
         function generateNewSymbols() {
             currentSymbols = [];
             
-            // 45% normal win chance, 60% when low on coins (like proposed)
-            const isLowCoins = balance <= START_BALANCE * 0.3; // When below 30% starting balance
-            const baseWinChance = isLowCoins ? 0.6 : 0.45;
-            
-            const shouldForceWin = Math.random() < baseWinChance;
+            const shouldForceWin = Math.random() < 0.33 || (balance < START_BALANCE * 0.3 && Math.random() < 0.43);
             
             if (shouldForceWin && gameActive) {
-                // Generate a winning combination with better payouts
                 generateWinningCombination();
             } else {
-                // Generate normal random symbols
                 for (let i = 0; i < 5; i++) {
                     currentSymbols.push(getWeightedRandomSymbol());
                 }
             }
         }
 
-        // Get weighted random symbol (better distribution)
         function getWeightedRandomSymbol() {
             const weights = {
                 'sieben': 15,
@@ -813,16 +754,14 @@
                 }
             }
             
-            return SYMBOLS[0]; // Fallback
+            return SYMBOLS[0];
         }
 
-        // Generate a guaranteed winning combination with higher minimum payouts
         function generateWinningCombination() {
             currentSymbols = [];
             const winType = Math.random();
             
-            if (winType < 0.7) {
-                // Generate 3-match win (70% of forced wins) - increased from 60%
+            if (winType < 0.75) {
                 const symbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
                 const startPos = Math.floor(Math.random() * 3);
                 
@@ -843,8 +782,7 @@
                         currentSymbols[i] = randomSymbol;
                     }
                 }
-            } else if (winType < 0.9) {
-                // Generate 4-match win (20% of forced wins)
+            } else if (winType < 0.95) {
                 const symbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
                 const startPos = Math.floor(Math.random() * 2);
                 
@@ -866,7 +804,6 @@
                     }
                 }
             } else {
-                // Generate jackpot (10% of forced wins)
                 const symbol = SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
                 for (let i = 0; i < 5; i++) {
                     currentSymbols[i] = symbol;
@@ -874,7 +811,6 @@
             }
         }
  
-        // Update display
         function updateDisplay() {
             for (let i = 0; i < 5; i++) {
                 const reel = document.getElementById(`reel${i}`);
@@ -883,23 +819,14 @@
             }
  
             document.getElementById('balance').textContent = balance;
- 
-            const bonusIndicator = document.getElementById('bonusIndicator');
-            if (multiplierReady) {
-                bonusIndicator.style.display = 'block';
-            } else {
-                bonusIndicator.style.display = 'none';
-            }
         }
 
-        // Show message with color
         function showMessage(text, color = '#00ffff') {
             const messageElement = document.getElementById('message');
             messageElement.textContent = text;
             messageElement.style.color = color;
         }
  
-        // Spin function
         function spin() {
             if (!gameActive || isSpinning) return;
  
@@ -921,10 +848,8 @@
             animateSpin();
         }
  
-        // Animate spinning
         function animateSpin() {
             const reels = document.querySelectorAll('.reel');
-            
             reels.forEach(reel => reel.classList.add('spinning'));
  
             let animationFrames = 0;
@@ -941,7 +866,6 @@
                 
                 if (animationFrames >= maxFrames) {
                     clearInterval(animationInterval);
-                    
                     reels.forEach(reel => reel.classList.remove('spinning'));
                     
                     generateNewSymbols();
@@ -958,7 +882,6 @@
             updateDisplay();
         }
  
-        // Evaluate win
         function evaluateWin() {
             const multiplier = betAmount / BET_AMOUNT_DEFAULT;
             
@@ -983,19 +906,16 @@
             return 0;
         }
  
-        // Check for jackpot (5 matching symbols)
         function isJackpot() {
             const firstSymbol = currentSymbols[0];
             return currentSymbols.every(symbol => symbol === firstSymbol);
         }
  
-        // Check for special combination
         function isSpecialCombination() {
             const special = ['glocke', 'diamant', 'sieben', 'diamant', 'glocke'];
             return JSON.stringify(currentSymbols) === JSON.stringify(special);
         }
  
-        // Check consecutive matches
         function checkConsecutiveMatches(count, payouts, multiplier) {
             for (let symbol of SYMBOLS) {
                 for (let i = 0; i <= 5 - count; i++) {
@@ -1014,50 +934,24 @@
             return 0;
         }
  
-        // Check special seven-diamond combo
         function isSpecialSevenDiamondCombo() {
             const sevenCount = currentSymbols.filter(s => s === 'sieben').length;
             const hasDiamond = currentSymbols.includes('diamant');
             return sevenCount === 4 && hasDiamond;
         }
  
-        // Process win result with improved bonus system
         function processWinResult(winAmount) {
             const hasWon = winAmount > 0;
  
-            winHistory.push(hasWon);
-            if (winHistory.length > 5) {
-                winHistory.shift();
-            }
- 
             if (hasWon) {
-                let finalWinAmount = winAmount;
-                
-                if (multiplierReady) {
-                    finalWinAmount *= 2;
-                    multiplierReady = false;
-                    showMessage(`🎉 BONUS GEWINN! ${finalWinAmount} Coins! 🎉`, '#00ff00');
-                } else {
-                    showMessage(`🎉 Gewinn! ${finalWinAmount} Coins! 🎉`, '#00ff00');
-                }
-                
-                balance += finalWinAmount;
-                
-                // Easier bonus activation: 1 win in last 3 spins (instead of 2 in 4)
-                const recentWins = winHistory.slice(-3).filter(win => win).length;
-                if (recentWins >= 1 && !multiplierReady && Math.random() < 0.4) {
-                    multiplierReady = true;
-                    setTimeout(() => {
-                        showMessage(`🔥 BONUS AKTIVIERT! Nächster Gewinn wird verdoppelt! 🔥`, '#ff6b6b');
-                    }, 1500);
-                }
+                showMessage(`🎉 Gewinn! ${winAmount} Coins! 🎉`, '#00ff00');
+                balance += winAmount;
             } else {
                 showMessage('Kein Gewinn. Versuch es nochmal!', '#ff6b6b');
             }
  
             updateDisplay();
             
-            // Check for game over
             if (balance < BET_MIN && !hasWon) {
                 setTimeout(() => {
                     gameActive = false;
